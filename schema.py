@@ -10,7 +10,7 @@ rom.util.set_connection_settings(host='redis-13794.c73.us-east-1-2.ec2.cloud.red
 
 class Tournament(rom.Model):
      key_id = rom.Integer(required=True, index=True)
-     tournament_id = rom.String(required=True)
+     tournament_id = rom.String(required=True, index=True, keygen=rom.FULL_TEXT)
      tournament_name = rom.String(required=True)
      year = rom.Integer(index=False)
      start_date = rom.String()
@@ -27,3 +27,18 @@ class Tournament(rom.Model):
      semi_finals = rom.Integer()
      third_place_match = rom.Integer()
      final = rom.Integer()
+
+#run the instances again for csv
+class AwardWinners(rom.Model):
+     key_id = rom.Integer(required=True, index=True)
+     tournament_id = rom.String(required=True, index=True, keygen=rom.FULL_TEXT)
+     tournament_name = rom.String(required=True)
+     award_id = rom.String(required=True, index=True, keygen=rom.FULL_TEXT)
+     award_name = rom.String()
+     shared = rom.Integer()
+     player_id = rom.String(required=True)
+     family_name = rom.String(required=True)
+     given_name = rom.String(required=True)
+     team_id = rom.String(required=True)
+     team_name = rom.String(required=True)
+     team_code = rom.String(required=True)
