@@ -2,13 +2,13 @@ import csv
 import requests
 import json
 
-with open('data/tournaments.csv', encoding = 'utf-8') as csv_file_handler:
+with open('data/award_winners.csv', encoding = 'utf-8') as csv_file_handler:
     reader = csv.DictReader(csv_file_handler)
     data = list(reader)
 
 for row in data:
-    r = requests.post('http://127.0.0.1:5000/tournament/new', json=row)
-    print(f"Created tournament {row['key_id']}")
+    r = requests.post('http://127.0.0.1:5000/award_winners/new', json=row)
+    # print(f"Created Award {row['key_id']}")
 
 # data =  {
 #         "count_teams": 13,
