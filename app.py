@@ -17,7 +17,7 @@ def crossOrigin():
   return jsonify({'success': 'ok'})
 
 # Create a new tournament.
-@app.route("/tournament/new", methods=["POST"])
+@app.route("/tournaments/new", methods=["POST"])
 def create_tournament():
     try:
         new_tournament = Tournament(**request.json)
@@ -45,15 +45,15 @@ def get_tournaments():
     return jsonify({'tournaments': tournaments_list})
 
 # Update a tournament.
-@app.route('/tournament/update/winner', methods=['POST'])
+@app.route('/tournaments/update/winner', methods=['POST'])
 def update_tournament():
     try:
-        key = request.json['key_id']
+        key = request.json['tournament_id']
         winner = request.json['winner'].encode('utf-8')
-        update_tournament = Tournament.get(key)
-        print(update_tournament)
-        update_tournament.winner = winner
-        update_tournament.save()
+        update_tournaments = Tournament.query.filter(tournament_id=key).all()
+        for update_tournament in update_tournaments:
+            update_tournament.winner = winner
+            update_tournament.save()
         return jsonify({'success': True}), 200
     except ValidationError as e:
         if not key:
@@ -62,19 +62,20 @@ def update_tournament():
             return jsonify({'error': 'No column exists'}), 404
 
 # Delete a tournament
-@app.route('/tournament/delete', methods=['POST'])
+@app.route('/tournaments/delete', methods=['POST'])
 def delete_tournament():
     try:
-        key = request.json['key_id']
-        record = Tournament.get(key)
-        if record is not None:
-            record.delete()
+        key = request.json['tournament_id']
+        records = Tournament.query.filter(tournament_id=key).all()
+        if records is None or len(records) == 0:
+            return jsonify({'error': 'No column exists'}), 404
+        for record in records:
+            if record is not None:
+                record.delete()
         return jsonify({'success': True}), 200
     except ValidationError as e:
         if not key:
             return jsonify({'error': 'Missing key'}), 400 
-        if update_tournament is None:
-            return jsonify({'error': 'No column exists'}), 404
         
 # Create a new award winner.
 @app.route("/award_winners/new", methods=['POST'])
@@ -88,7 +89,7 @@ def create_award_winner():
         return "Bad request.", 400
     
 # For each tournament, send the award winners along with team names and award name
-@app.route("/awardWinners", methods=["POST"])
+@app.route("/award_winners", methods=["POST"])
 def get_award_winners():
     try:
         awards_winners_list = []
