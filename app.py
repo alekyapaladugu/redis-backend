@@ -89,28 +89,28 @@ def create_award_winner():
         return "Bad request.", 400
     
 # For each tournament, send the award winners along with team names and award name
-@app.route("/award_winners", methods=["POST"])
+@app.route("/award_winners", methods=["GET"])
 def get_award_winners():
     try:
         awards_winners_list = []
-        tournament_id = request.json['tournament_id']
-        print(tournament_id)
-        award_winners = AwardWinners.query.filter(tournament_id=tournament_id).all()
-        print(award_winners)
+        key = request.args.get('tournament_id', None)
+        if not key:
+            return jsonify({'error': 'Empty Tournament ID'}), 400 
+        query = AwardWinners.query.filter(tournament_id=key)
+        if query is None:
+            return jsonify({'error': 'Incorrect Tournament ID'}), 404
+        award_winners = query.all()
         for winner in award_winners:
             winners_dict = winner.to_dict()
-        print(winners_dict)
-        for key,value in winners_dict.items():
-            if isinstance(value, bytes):
-                winners_dict[key] = value.decode('utf-8')
-        awards_winners_list.append(winners_dict)
+            for key,value in winners_dict.items():
+                if isinstance(value, bytes):
+                    winners_dict[key] = value.decode('latin-1')
+            awards_winners_list.append(winners_dict)
         return jsonify({'award_winners': awards_winners_list})
 
     except ValidationError as e:
-        if not tournament_id:
+        if not key:
             return jsonify({'error': 'Empty Tournament ID'}), 400 
-        if award_winners is None:
-            return jsonify({'error': 'Incorrect Tournament ID'}), 404
  
 if __name__ == "__main__":
     app.run(debug=True)
